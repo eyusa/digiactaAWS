@@ -1,0 +1,83 @@
+{
+  "OutputGroups": [
+    {
+      "CustomName": "HLS",
+      "Name": "Apple HLS",
+      "Outputs": [
+        {
+          "NameModifier": "_270",
+          "ContainerSettings": {
+            "M3u8Settings": {
+              "Scte35Source": "NONE"
+            }
+          },
+          "Preset": "System-Ott_Hls_Ts_Avc_Aac_16x9_480x270p_15Hz_0.4Mbps"
+        },
+        {
+          "NameModifier": "_360",
+          "ContainerSettings": {
+            "M3u8Settings": {
+              "Scte35Source": "NONE"
+            }
+          },
+          "Preset": "System-Ott_Hls_Ts_Avc_Aac_16x9_640x360p_30Hz_0.6Mbps"
+        },
+        {
+          "NameModifier": "_540",
+          "Preset": "System-Ott_Hls_Ts_Hevc_Aac_16x9_960x540p_24Hz_1.5Mbps"
+        },
+        {
+          "NameModifier": "_720",
+          "Preset": "System-Ott_Hls_Ts_Avc_Aac_16x9_960x540p_30Hz_3.5Mbps"
+        },
+        {
+          "NameModifier": "_1080",
+          "Preset": "System-Ott_Hls_Ts_Avc_Aac_4x3_960x720p_30Hz_6.5Mbps"
+        }
+      ],
+      "OutputGroupSettings": {
+        "Type": "HLS_GROUP_SETTINGS",
+        "HlsGroupSettings": {
+          "ManifestDurationFormat": "INTEGER",
+          "SegmentLength": 10,
+          "TimedMetadataId3Period": 10,
+          "CaptionLanguageSetting": "OMIT",
+          "Destination": "s3://emc-watchfolder-mediabucket-bhnoiqbsaky7/ple20191112/Default/HLS/",
+          "TimedMetadataId3Frame": "PRIV",
+          "CodecSpecification": "RFC_4281",
+          "OutputSelection": "MANIFESTS_AND_SEGMENTS",
+          "ProgramDateTimePeriod": 600,
+          "MinSegmentLength": 0,
+          "DirectoryStructure": "SINGLE_DIRECTORY",
+          "ProgramDateTime": "EXCLUDE",
+          "SegmentControl": "SEGMENTED_FILES",
+          "ManifestCompression": "NONE",
+          "ClientCache": "ENABLED",
+          "StreamInfResolution": "INCLUDE"
+        }
+      }
+    }
+  ],
+  "AdAvailOffset": 0,
+  "Inputs": [
+    {
+      "AudioSelectors": {
+        "Audio Selector 1": {
+          "Offset": 0,
+          "DefaultSelection": "DEFAULT",
+          "ProgramSelection": 1
+        }
+      },
+      "VideoSelector": {
+        "ColorSpace": "FOLLOW"
+      },
+      "FilterEnable": "AUTO",
+      "PsiControl": "USE_PSI",
+      "FilterStrength": 0,
+      "DeblockFilter": "DISABLED",
+      "DenoiseFilter": "DISABLED",
+      "TimecodeSource": "EMBEDDED",
+      "FileInput": "s3://emc-watchfolder-watchfolder-1s72gzw15knm3/inputs/ple20191112.mp4"
+    }
+  ]
+}
