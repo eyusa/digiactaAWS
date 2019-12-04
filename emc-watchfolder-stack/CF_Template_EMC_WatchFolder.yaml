@@ -140,7 +140,7 @@ Resources:
                     Value: inputs/
                   - Name: suffix
                     Value: mp4
-    DeletionPolicy: Retain
+#    DeletionPolicy: Retain
 
   LambdaConvert:
     Type: AWS::Lambda::Function
@@ -178,7 +178,7 @@ Resources:
         - Id: ExpireRule
           Status: Enabled
           ExpirationInDays: '7'
-    DeletionPolicy: Retain
+#    DeletionPolicy: Retain
     Type: "AWS::S3::Bucket"
 
   MediaBucketPolicy:
