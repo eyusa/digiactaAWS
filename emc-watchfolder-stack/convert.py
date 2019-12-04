@@ -65,28 +65,28 @@ def handler(event, context):
         jobInput = {}
         # Iterates through all the objects in jobs folder of the WatchFolder bucket, doing the pagination for you. Each obj
         # contains a jobSettings JSON
-        bucket = S3.Bucket(sourceS3Bucket)
-        for obj in bucket.objects.filter(Prefix='jobs/'):
-            if obj.key != "jobs/":
-                jobInput['filename'] = obj.key
-                logger.info('jobInput: %s', jobInput['filename'])
-
-                jobInput['settings'] = json.loads(obj.get()['Body'].read())
-                logger.info(json.dumps(jobInput['settings'])) 
-                
-                jobs.append(jobInput)
+        # bucket = S3.Bucket(sourceS3Bucket)
+        # for obj in bucket.objects.filter(Prefix='jobs/'):
+        #     if obj.key != "jobs/":
+        #         jobInput['filename'] = obj.key
+        #         logger.info('jobInput: %s', jobInput['filename'])
+        #
+        #         jobInput['settings'] = json.loads(obj.get()['Body'].read())
+        #         logger.info(json.dumps(jobInput['settings']))
+        #
+        #         jobs.append(jobInput)
         
         # Use Default job settings in the lambda zip file in the current working directory
-        if not jobs:
+        # if not jobs:
             
-            with open('job.json') as json_data:
-                jobInput['filename'] = 'Default'
-                logger.info('jobInput: %s', jobInput['filename'])
+        with open('job.json') as json_data:
+            jobInput['filename'] = 'Default'
+            logger.info('jobInput: %s', jobInput['filename'])
 
-                jobInput['settings'] = json.load(json_data)
-                logger.info(json.dumps(jobInput['settings']))
+            jobInput['settings'] = json.load(json_data)
+            logger.info(json.dumps(jobInput['settings']))
 
-                jobs.append(jobInput)
+            jobs.append(jobInput)
                  
         # get the account-specific mediaconvert endpoint for this region
         mediaconvert_client = boto3.client('mediaconvert', region_name=region)
@@ -109,8 +109,8 @@ def handler(event, context):
             # destination bucket of the output paths in the job settings, but keep the rest of the
             # path
             destinationS3 = 's3://' + os.environ['DestinationBucket'] + '/' \
-                + os.path.splitext(os.path.basename(sourceS3Key))[0] + '/' \
-                + os.path.splitext(os.path.basename(jobFilename))[0]                 
+                + os.path.splitext(os.path.basename(sourceS3Key))[0] + '/' # \
+                # + os.path.splitext(os.path.basename(jobFilename))[0]
 
             for outputGroup in jobSettings['OutputGroups']:
                 

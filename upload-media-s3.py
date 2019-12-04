@@ -5,7 +5,6 @@ import sys
 from boto3.s3.transfer import TransferConfig
 import click
 
-
 def multi_part_upload_with_s3(bucket, key, secret, file):
     s3 = boto3.resource('s3', aws_access_key_id=key, aws_secret_access_key=secret)
 
@@ -35,21 +34,19 @@ class ProgressPercentage(object):
             self._seen_so_far += bytes_amount
             percentage = (self._seen_so_far / self._size) * 100
             sys.stdout.write(
-                "\r%s  %s / %s  (%.2f%%)" % (
+                "\r Progress: '%s'  %s / %s  (%.2f%%)" % (
                     self._filename, self._seen_so_far, self._size,
                     percentage))
             sys.stdout.flush()
 
 
 @click.command()
-@click.option('--bucket', '-b', required=True, help='S3 Bucket')
-@click.option('--key', '-k', required=True, help='AWS Key')
-@click.option('--secret', '-s', required=True, help='AWS Secret')
-@click.option('--file', '-f', required=True, help='File to upload')
+@click.option('--bucket', '-b', required=False, help='S3 Bucket Name', default='emc-media-watchfolder',show_default=True)
+@click.option('--key', '-k', required=False, help='AWS Key. If not provided it will be picked uop from the aws config.')
+@click.option('--secret', '-s', required=False, help='AWS Secret. If not provided it will be picked uop from the aws config.')
+@click.option('--file', '-f', required=True, help='File to upload',type=click.Path(exists=True))
 def cli(bucket, key, secret, file):
-    print('Hello')
     multi_part_upload_with_s3(bucket, key, secret, file)
-
 
 if __name__ == "__main__":
     cli()

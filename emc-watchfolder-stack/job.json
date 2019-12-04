@@ -42,7 +42,7 @@
           "SegmentLength": 10,
           "TimedMetadataId3Period": 10,
           "CaptionLanguageSetting": "OMIT",
-          "Destination": "s3://emc-watchfolder-mediabucket-bhnoiqbsaky7/ple20191112/Default/HLS/",
+          "Destination": "s3://<MEDIABUCKET>/HLS/",
           "TimedMetadataId3Frame": "PRIV",
           "CodecSpecification": "RFC_4281",
           "OutputSelection": "MANIFESTS_AND_SEGMENTS",

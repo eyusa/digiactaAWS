@@ -8,14 +8,14 @@ Parameters:
   NotifcationEmail:
     Description: Email address for SNS notifications
     Type: String
-    Default: elementalrodeo@gmail.com
+    Default: sample@example.com
     AllowedPattern: "^[_A-Za-z0-9-\\+]+(\\.[_A-Za-z0-9-]+)*@[A-Za-z0-9-]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$"
 
 Mappings:
   SourceCode:
     General:
-      S3Bucket: "rodeolabz"
-      KeyPrefix: "vodtk/1a-mediaconvert-watchfolder"
+      S3Bucket: "cf-template-support"
+      KeyPrefix: "lambda"
 
 Resources:
 
@@ -122,6 +122,7 @@ Resources:
   WatchFolder:
     Type: AWS::S3::Bucket
     Properties:
+      BucketName : emc-media-watchfolder
       LifecycleConfiguration:
         Rules:
         - Id: ExpireRule
@@ -149,7 +150,7 @@ Resources:
       Handler: convert.handler
       Role: !GetAtt LambdaRole.Arn
       Code:
-        S3Bucket: !Join ["-", [!FindInMap ["SourceCode", "General", "S3Bucket"], !Ref "AWS::Region"]]
+        S3Bucket: !FindInMap ["SourceCode", "General", "S3Bucket"]
         S3Key: !Join ["/", [!FindInMap ["SourceCode", "General", "KeyPrefix"],  "lambda.zip"]]
       Environment:
         Variables:
@@ -161,6 +162,7 @@ Resources:
   
   MediaBucket:
     Properties:
+      BucketName : emc-media-hls-bucket
       WebsiteConfiguration:
         IndexDocument: index.html
       CorsConfiguration:
@@ -239,7 +241,7 @@ Resources:
               jobId: "$.detail.jobId"
               region: "$.region" 
               status: "$.detail.status"
-            InputTemplate: '"Job <jobId> finished with status <status>. Job details: https://<region>.console.aws.amazon.com/mediaconvert/home?region=<region>#/jobs/summary/<jobId>"'
+            InputTemplate: '"Job <jobId> finished with status <status>.\nJob details: https://<region>.console.aws.amazon.com/mediaconvert/home?region=<region>#/jobs/summary/<jobId>"'
 
 Outputs:
   MediaBucket:
