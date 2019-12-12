@@ -13,7 +13,7 @@ app.config['DOWNLOAD_FOLDER'] = DOWNLOAD_FOLDER
 
 @app.route('/')
 def home():
-    return "<html><h1>Welcome to HLS Editor API</h1> <p>Post the editing related data to the following URI to start the editoing</p><br><p>/process<p></html>"
+    return "<html><h1>Welcome to HLS Editor API</h1><p>Post the editing related data to the following URI to start the editoing</p><p>  /process<p></html>"
 
 @app.route('/process', methods=['GET', 'POST'])
 def upload():
