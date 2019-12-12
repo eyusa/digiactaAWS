@@ -51,6 +51,7 @@ def upload():
         app.logger.info("Json Data: " + str(json_data))
         filename = process_m3u8(json_data, app.config['DOWNLOAD_FOLDER'])
         ddir = os.path.join(current_app.root_path, app.config['DOWNLOAD_FOLDER'])
+        app.logger.info('Dir to sedn teh data: {} ------ file: {}'.format(ddir,filename))
         return send_from_directory(directory=ddir, filename=filename, as_attachment=True)
 
     else:
