@@ -128,6 +128,6 @@ def from_hhmmss_to_sec(ts):
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True,host='0.0.0.0', port=80)
     # response = process_m3u8(None, 'files/download')
     # print(response)
