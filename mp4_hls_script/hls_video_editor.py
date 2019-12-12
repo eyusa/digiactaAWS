@@ -110,6 +110,9 @@ def process_m3u8(json_data, output_dir):
 
     print('Command Being used: ' + " ".join(ffmpeg_cmd))
 
+    if not os.path.exists(output_dir):
+        os.makedirs(output_dir)
+
     ffmpeg = subprocess.Popen(ffmpeg_cmd,
                               stdin=subprocess.PIPE,
                               stdout=subprocess.PIPE,
