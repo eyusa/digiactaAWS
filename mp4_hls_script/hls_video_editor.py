@@ -46,9 +46,9 @@ def home():
 @app.route('/process', methods=['GET', 'POST'])
 def upload():
     if request.method == 'POST':
-        print(request)
+        app.logger.info(request)
         json_data = request.get_json(silent=False)
-        print("Json Data: " + str(json_data))
+        app.logger.info("Json Data: " + str(json_data))
         filename = process_m3u8(json_data, app.config['DOWNLOAD_FOLDER'])
         ddir = os.path.join(current_app.root_path, app.config['DOWNLOAD_FOLDER'])
         return send_from_directory(directory=ddir, filename=filename, as_attachment=True)
@@ -108,7 +108,7 @@ def process_m3u8(json_data, output_dir):
         ffmpeg_cmd[-2] = 'a'
         ffmpeg_cmd[-3] = '-map'
 
-    print('Command Being used: ' + " ".join(ffmpeg_cmd))
+    app.logger.info('Command Being used: ' + " ".join(ffmpeg_cmd))
 
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
@@ -121,7 +121,7 @@ def process_m3u8(json_data, output_dir):
 
     while True:
         output = ffmpeg.stdout.readline().decode('utf-8').strip()
-        print(output)
+        app.logger.info(output)
         code = ffmpeg.poll()
         if code is None:
             if 'Press [q] to stop' in output:
@@ -130,7 +130,7 @@ def process_m3u8(json_data, output_dir):
                 # break
         else:
             for lines in ffmpeg.stdout.readlines():
-                print(lines.decode('utf-8').strip())
+                app.logger.info(lines.decode('utf-8').strip())
 
             if code != 0:
                 raise InvalidUsage('error converting', status_code=500)
