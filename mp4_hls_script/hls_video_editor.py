@@ -13,7 +13,7 @@ app.config['DOWNLOAD_FOLDER'] = DOWNLOAD_FOLDER
 
 @app.route('/')
 def home():
-    return render_template('home.html')
+    return "<html><h1>Welcome to HLS Editor API</h1> <p>Post the editing related data to the following URI to start the editoing</p><br><p>/process<p></html>"
 
 @app.route('/process', methods=['GET', 'POST'])
 def upload():
@@ -28,7 +28,7 @@ def upload():
     else:
         return redirect(url_for('home'))
 
-@app.route('/about')
+# @app.route('/about')
 def about():
     return render_template('about.html')
 
