@@ -59,7 +59,7 @@ Install the requirements on teh system as defined in `requirements.txt` by runni
 
     pip install -r requirements.txt
 
-To upload files from local system to the created s3 bucket as watch folder `emc-media-watchfolder` run the script called `upload-media-s3.py`.
+To upload files from local system to the created s3 bucket `emc-media-watchfolder` run the script called `upload-media-s3.py` under folder 'mp4_hls_script'
 
         Usage: upload-media-s3.py [OPTIONS]        
         Options:
@@ -71,3 +71,69 @@ To upload files from local system to the created s3 bucket as watch folder `emc-
           -f, --file PATH    File to upload  [required]
           --help             Show this message and exit.
 
+
+## RUNNING AND HOSTING HLS MEDIA EDITOR
+
+As part of this project, there is a flask based API, which can be called to get video and/or audio from the m3u8 link as created by the `emc-watchfolder-stack`. This can also be used to get a clip of the video or audio based on in and out time.
+
+### Dependencies
+
+- ffmpeg
+- python3
+
+### Hosting the API
+
+Since its a flask based API, it can simply be hosted on any server running pyhton3 and ffmpeg. Following are the steps:
+
+1. With flask installed (pip install flask),
+2. Set the environment variable with set FLASK_APP=main01.py for windows or export FLASK_APP=main01.py for linux,
+3. Use flask run,
+4. Navigate to localhost:5000 in your browser.
+
+Run the following commands on linux to start the flask app:
+
+```
+pip install -r requirements
+FLASK_APP=mp4_hls_script/hls_video_editor.py flask run
+
+```
+The API will be available on `localhost:5000`
+
+
+### Syntax to call the editor API
+
+```
+
+REQUEST: POST /process
+
+RESPONSE: Generated File as attachement
+
+POST DATA: Json data as below:
+
+{ 
+   "variable_m3u8_url":"https://emc-media-hls-bucket.s3.eu-central-1.amazonaws.com/Counter_10350/HLS/Counter_10350.m3u8",
+   "get_content":"audio",
+   "quality":270,
+   "time_in":"00:05:36",
+   "time_out":"00:09:10"
+}
+
+where,
+
+    - variable_m3u8_url: URL of the M3U8 file as created the emc-watchfolder-stack. This is the Main parent m3u8 adn not hte individula quality one.
+    - get_content: audio or video. if audio is given then only the audio is extracted from the video. files return are .mp4 for video and .aac for only audio.
+    - quality: quality of the video to work on. Options 270/360/540/720/1080. Depending on teh quality the response time varies significantly.
+    - time_in: time to start the clipping in the format HH:MM:SS
+    - time_out: time to stop the clipping in the format HH:MM:SS
+
+```
+ 
+### Test call to the API
+
+```
+
+curl -X POST -H "Content-Type: application/json" -d @data.json -O -J http:/localhost:5000/process
+
+```
+where,
+data.json has the json request to be sent as described in the syntax section above.
