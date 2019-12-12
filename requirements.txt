@@ -1,2 +1,5 @@
 boto3
 click
+slugify
+flask
+m3u8

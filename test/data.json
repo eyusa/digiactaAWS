@@ -1,0 +1,7 @@
+{ 
+   "variable_m3u8_url":"https://emc-media-hls-bucket.s3.eu-central-1.amazonaws.com/Counter_10350/HLS/Counter_10350.m3u8",
+   "get_content":"audio",
+   "quality":270,
+   "time_in":"00:05:36",
+   "time_out":"00:09:10"
+}

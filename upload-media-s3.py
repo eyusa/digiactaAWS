@@ -4,6 +4,7 @@ import os
 import sys
 from boto3.s3.transfer import TransferConfig
 import click
+from slugify import slugify
 
 def multi_part_upload_with_s3(bucket, key, secret, file):
     s3 = boto3.resource('s3', aws_access_key_id=key, aws_secret_access_key=secret)
@@ -12,7 +13,10 @@ def multi_part_upload_with_s3(bucket, key, secret, file):
     config = TransferConfig(multipart_threshold=1024 * 25, max_concurrency=10,
                             multipart_chunksize=1024 * 25, use_threads=True)
 
-    key_path = 'inputs/{}'.format(os.path.basename(file))
+    file_parts = os.path.splitext(os.path.basename(file))
+
+    key_path = 'inputs/{}.{}'.format(slugify(file_parts)[0],file_parts[-1])
+
     s3.meta.client.upload_file(file, bucket, key_path,
                                ExtraArgs={'ACL': 'public-read', 'ContentType': 'video/mp4'},
                                Config=config,
