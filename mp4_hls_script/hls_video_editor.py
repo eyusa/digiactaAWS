@@ -1,9 +1,27 @@
-from flask import Flask, render_template, request, redirect, url_for, send_from_directory, current_app, make_response
+from flask import Flask, render_template, request, redirect, url_for, send_from_directory, current_app, make_response, \
+    jsonify
 from werkzeug.utils import secure_filename
 import os
 import subprocess
 import m3u8
 from urllib.parse import urlparse, urljoin
+
+
+class InvalidUsage(Exception):
+    status_code = 400
+
+    def __init__(self, message, status_code=None, payload=None):
+        Exception.__init__(self)
+        self.message = message
+        if status_code is not None:
+            self.status_code = status_code
+        self.payload = payload
+
+    def to_dict(self):
+        rv = dict(self.payload or ())
+        rv['message'] = self.message
+        return rv
+
 
 FFMPEG_BIN = "ffmpeg"
 DOWNLOAD_FOLDER = 'files/download'
@@ -11,16 +29,26 @@ DOWNLOAD_FOLDER = 'files/download'
 app = Flask(__name__)
 app.config['DOWNLOAD_FOLDER'] = DOWNLOAD_FOLDER
 
+
+@app.errorhandler(InvalidUsage)
+def handle_invalid_usage(error):
+    response = jsonify(error.to_dict())
+    response.status_code = error.status_code
+    return response
+
+
 @app.route('/')
 def home():
     return "<html><h1>Welcome to HLS Editor API</h1><p>Post the editing related data to the following URI to start the editoing</p><p>  /process<p></html>"
+
+
 
 @app.route('/process', methods=['GET', 'POST'])
 def upload():
     if request.method == 'POST':
         print(request)
         json_data = request.get_json(silent=False)
-        print("Json Data: "+str(json_data))
+        print("Json Data: " + str(json_data))
         filename = process_m3u8(json_data, app.config['DOWNLOAD_FOLDER'])
         ddir = os.path.join(current_app.root_path, app.config['DOWNLOAD_FOLDER'])
         return send_from_directory(directory=ddir, filename=filename, as_attachment=True)
@@ -28,7 +56,8 @@ def upload():
     else:
         return redirect(url_for('home'))
 
-# @app.route('/about')
+
+#@app.route('/about')
 def about():
     return render_template('about.html')
 
@@ -57,35 +86,35 @@ def process_m3u8(json_data, output_dir):
                 playlist_to_process = urljoin(m3u8_file.base_uri, playlist.uri)
                 break
     else:
-        return {'error': 'specified m3u8 is not a root playlist'}, 400
+        raise InvalidUsage('specified m3u8 is not a root playlist', status_code=400)
+        # return {'error': 'specified m3u8 is not a root playlist'}, 400
 
     if not playlist_to_process:
-        return {'error': 'specified quality not found in m3u8'}, 400
+        raise InvalidUsage('specified quality not found in m3u8', status_code=400)
+        # return {'error': 'specified quality not found in m3u8'}, 400
 
     a = urlparse(playlist_to_process)
     m3u8_file_name = os.path.basename(a.path)
     mp4_file_name = secure_filename('{}_{}_{}_{}.{}'.format(os.path.splitext(m3u8_file_name)[0], time_in, time_out,
-                                                             return_content_type,'mp4' if return_content_type == 'video' else 'aac'))
+                                                            return_content_type,
+                                                            'mp4' if return_content_type == 'video' else 'aac'))
     output_file = os.path.join(output_dir, mp4_file_name)
 
-
-    ffmpeg_cmd = [FFMPEG_BIN, '-hide_banner', '-y',  '-i', playlist_to_process, '-ss', time_in,'-to', time_out,
-                  '-c', 'copy',  '-threads', '10','-bsf:a', 'aac_adtstoasc',
+    ffmpeg_cmd = [FFMPEG_BIN, '-hide_banner', '-y', '-i', playlist_to_process, '-ss', time_in, '-to', time_out,
+                  '-c', 'copy', '-threads', '10', '-bsf:a', 'aac_adtstoasc',
                   output_file]
 
     if return_content_type == 'audio':
-
         ffmpeg_cmd[-2] = 'a'
         ffmpeg_cmd[-3] = '-map'
 
     print('Command Being used: ' + " ".join(ffmpeg_cmd))
 
     ffmpeg = subprocess.Popen(ffmpeg_cmd,
-                          stdin=subprocess.PIPE,
-                          stdout=subprocess.PIPE,
+                              stdin=subprocess.PIPE,
+                              stdout=subprocess.PIPE,
                               stderr=subprocess.STDOUT
-                          )
-
+                              )
 
     while True:
         output = ffmpeg.stdout.readline().decode('utf-8').strip()
@@ -100,34 +129,19 @@ def process_m3u8(json_data, output_dir):
             for lines in ffmpeg.stdout.readlines():
                 print(lines.decode('utf-8').strip())
 
-            if code!=0:
-                return {'error': 'error converting'}, 400
+            if code != 0:
+                raise InvalidUsage('error converting', status_code=500)
 
             break
 
-
-
-
-
-
-
-
     return mp4_file_name
 
-
-# def get_new_m3u8_clip(m3u8_url,tin,tout):
-#     obj = m3u8.load(m3u8_url)
-#     new_obj = m3u8.load(m3u8_url)
-#     tis = from_hhmmss_to_sec(tin)
-#     tos = from_hhmmss_to_sec(tout)
-#
-#     obj.target_duration
 
 def from_hhmmss_to_sec(ts):
     return sum(int(x) * 60 ** i for i, x in enumerate(reversed(ts.split(":"))))
 
 
 if __name__ == '__main__':
-    app.run(debug=True,host='0.0.0.0', port=80)
+    app.run(debug=True, host='0.0.0.0', port=80)
     # response = process_m3u8(None, 'files/download')
     # print(response)
